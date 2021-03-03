@@ -1,5 +1,3 @@
-import java.util.Arrays;
-
 public class Main
 {
     public static void main(String[] args)
@@ -9,44 +7,101 @@ public class Main
         char[][] matrix = new char[alphabet.length()][alphabet.length()];
 
         fillMatrix(matrix, alphabet);
-        printMatrix(matrix);
+        //printMatrix(matrix);
 
-        String sWord = "utekajte idu zajatci";
-        String sKey = "auticko";
-        StringBuilder sSecret = new StringBuilder(); // mhata tcsa
+        String encrypt = "Abrakadabra, to je kuzlo pre Voldemorta!";
+        String key = "rokfort";
 
-        char[] word = sWord.toCharArray();
-        char[] key = sKey.toCharArray();
+        StringBuilder encrypted = vigEncrypt(encrypt.toCharArray(), key.toCharArray(), matrix);
+        System.out.println(encrypted);
+
+        String decrypt = "Rpbfyrwrpbf, hf cv yeezf iis Ftzuxdcbyo!";
+        String decrypted = vigDecrypt(decrypt.toCharArray(), key.toCharArray(), matrix, alphabet.toCharArray());
+        System.out.println(decrypted);
+    }
+
+    private static String vigDecrypt(char[] encryptedTextArr, char[] key, char[][] matrix, char[] alphabet)
+    {
+        StringBuilder decryptedText = new StringBuilder();
 
         int i = 0;
         int keyIndex = 0;
-        while (i < word.length)
+        while (i < encryptedTextArr.length)
         {
-            if (word[i] == ' ')
+            if (((int) encryptedTextArr[i] >= 65 && (int) encryptedTextArr[i] <= 90) || ((int) encryptedTextArr[i] >= 97 && (int) encryptedTextArr[i] <= 122))
             {
-                sSecret.append(' ');
-            }
-            else
-            {
-                // TODO: do this if word[i] is a letter otherwise append non-letter character
+                if (((int) encryptedTextArr[i] >= 65 && (int) encryptedTextArr[i] <= 90))
+                    encryptedTextArr[i] = (char) (encryptedTextArr[i] + 32);
+
                 if (keyIndex == key.length)
                     keyIndex = 0;
 
-                int row = findRow(key[keyIndex], matrix);
-                System.out.println("row: " + row);
-                int column = findColumn(word[i], matrix);
-                System.out.println("column: " + column);
+                int row = findRow(key[keyIndex], matrix); // 0 1 2
+                int column = getIndex(encryptedTextArr[i], row, matrix);
 
-                sSecret.append(matrix[column][row]);
-
+                decryptedText.append(alphabet[column]);
 
                 keyIndex++;
+            }
+            else
+            {
+                decryptedText.append(encryptedTextArr[i]);
             }
 
             i++;
         }
 
-        System.out.println(sSecret);
+        return decryptedText.toString();
+    }
+
+    private static int getIndex(char c, int row, char[][] matrix)
+    {
+        int index = -1;
+
+        for (int i = 0; i < matrix[row].length; i++)
+        {
+            if (matrix[row][i] == c)
+            {
+                index = i;
+                break;
+            }
+        }
+
+        return index;
+    }
+
+    private static StringBuilder vigEncrypt(char[] sentenceArr, char[] key, char[][] matrix)
+    {
+        StringBuilder secret = new StringBuilder();
+
+        int i = 0;
+        int keyIndex = 0;
+        while (i < sentenceArr.length)
+        {
+            if (((int) sentenceArr[i] >= 65 && (int) sentenceArr[i] <= 90) || ((int) sentenceArr[i] >= 97 && (int) sentenceArr[i] <= 122))
+            {
+                if (((int) sentenceArr[i] >= 65 && (int) sentenceArr[i] <= 90))
+                    sentenceArr[i] = (char) (sentenceArr[i] + 32);
+
+                if (keyIndex == key.length)
+                    keyIndex = 0;
+
+                int row = findRow(key[keyIndex], matrix);
+                int column = findColumn(sentenceArr[i], matrix);
+
+                secret.append(matrix[column][row]);
+
+                keyIndex++;
+            }
+            else
+            {
+                secret.append(sentenceArr[i]);
+            }
+
+            i++;
+        }
+
+        return secret;
     }
 
     private static int findColumn(char c, char[][] matrix)
